@@ -4,6 +4,11 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const mongoose = require("mongoose");
+const { createClient } = require('redis')
+const REDIS_PORT = process.env.REDIS_PORT || 6379
+
+
+const client = createClient(REDIS_PORT)
 mongoose.connect(
   "mongodb+srv://timcoder:superuser@cluster0.vmyfzhj.mongodb.net/Libary?retryWrites=true&w=majority",
   {
