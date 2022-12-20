@@ -2,18 +2,20 @@ const express = require("express");
 const router = express.Router();
 const Books = require("../model/Books");
 const auth = require("../middleware/auth");
-
+const Redis = require('redis');
+const redisClient = Redis.createClient();
 // Get all books
 router.get("/", function (req, res, next) {
   Books.find()
     .limit(20)
     .exec((err, books) => {
       if (err) console.log(err.message);
+      redisClient.setEx('books', 3600, "Alisher")
       res.json(books);
     });
 });
 
-// Adding new Book
+// ? Adding new Book
 router.post("/", auth, async (req, res) => {
   try {
     const books = await new Books(req.body);
