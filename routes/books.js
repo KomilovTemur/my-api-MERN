@@ -2,13 +2,38 @@ const express = require("express");
 const router = express.Router();
 const Books = require("../model/Books");
 const auth = require("../middleware/auth");
+const { createClient } = require("redis");
+const client = createClient();
+client.on("error", (err) => console.log(err));
+client.connect();
+
+async function setData(key, value) {
+  await client.set(key, JSON.stringify(value));
+}
+
+async function getData(key) {
+  return await client.get(key);
+}
+
+// cache middleware
+function cache(req, res, next) {
+  getData(`books${req.query.skip}`).then((data) => {
+    if (data !== null) {
+      res.json(JSON.parse(data));
+    } else {
+      next();
+    }
+  });
+}
 
 // Get all books
-router.get("/", function (req, res, next) {
+router.get("/", cache, function (req, res, next) {
   Books.find()
+    .skip(req.query.skip)
     .limit(20)
     .exec((err, books) => {
       if (err) console.log(err.message);
+      setData(`books${req.query.skip}`, books);
       res.json(books);
     });
 });
