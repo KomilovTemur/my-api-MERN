@@ -3,7 +3,12 @@ const router = express.Router();
 const Books = require("../model/Books");
 const auth = require("../middleware/auth");
 const { createClient } = require("redis");
-const client = createClient();
+const client = createClient({
+  host: "redis-14579.c253.us-central1-1.gce.cloud.redislabs.com",
+  port: 14579,
+  username: 'default',
+  password: "7gxVcYOUJxZ6TB79W4F3g2QgYRUh2LtN"
+});
 client.on("error", (err) => console.log(err));
 client.connect();
 
@@ -25,7 +30,6 @@ function cache(req, res, next) {
     }
   });
 }
-
 
 // Get all books
 router.get("/", cache, function (req, res, next) {
