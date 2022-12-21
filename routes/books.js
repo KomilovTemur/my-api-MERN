@@ -18,7 +18,7 @@ async function getData(key) {
 // cache middleware
 function cache(req, res, next) {
   getData(`books${req.query.skip}`).then((data) => {
-    if (data !== null) {
+    if (data) {
       res.json(JSON.parse(data));
     } else {
       next();
@@ -26,16 +26,21 @@ function cache(req, res, next) {
   });
 }
 
+
 // Get all books
 router.get("/", cache, function (req, res, next) {
-  Books.find()
-    .skip(req.query.skip)
-    .limit(20)
-    .exec((err, books) => {
-      if (err) console.log(err.message);
-      setData(`books${req.query.skip}`, books);
-      res.json(books);
-    });
+  if (req.query.skip == undefined) {
+    res.redirect("/books?skip=10");
+  } else {
+    Books.find()
+      .skip(req.query.skip)
+      .limit(20)
+      .exec((err, books) => {
+        if (err) console.log(err.message);
+        setData(`books${req.query.skip}`, books);
+        res.json(books);
+      });
+  }
 });
 
 // Adding new Book
